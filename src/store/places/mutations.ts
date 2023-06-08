@@ -1,11 +1,16 @@
 import { MutationTree } from 'vuex';
 import { PlacesState } from './state';
 
+interface ICoords {
+  lng: number;
+  lat: number;
+}
 
 const mutation: MutationTree<PlacesState> = {
-    someMutation( /* state: ExampleStateInterface */) {
-        // a line to prevent linter errors
-    }
+  setUserLocation( state: PlacesState, { lng, lat }: ICoords ) {
+    state.userLocation = [ lng, lat ];
+    state.isLoading = false;
+  }
 }
 
 

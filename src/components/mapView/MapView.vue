@@ -7,47 +7,55 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, watch } from "vue"
-import { usePlacesStore } from "@/composables/usePlacesStore"
-import Mapboxgl from "mapbox-gl"
+import { defineComponent, onMounted, ref, watch } from "vue";
+import { usePlacesStore } from "@/composables/usePlacesStore";
+import { useMapStore } from "@/composables/useMapStore";
+import Mapboxgl from "mapbox-gl";
 
 export default defineComponent({
-  name: 'MapView',
+  name: "MapView",
   setup() {
-    const mapElement = ref<HTMLDivElement>()
-    const { isUserLocationReady, userLocation } = usePlacesStore()
+    const mapElement = ref<HTMLDivElement>();
+    const { isUserLocationReady, userLocation } = usePlacesStore();
+    const { setMap } = useMapStore();
 
     const initMap = async () => {
-      if (!mapElement.value) return
-      if (!userLocation.value) return
+      if (!mapElement.value) return;
+      if (!userLocation.value) return;
 
-      await Promise.resolve()
+      await Promise.resolve();
       const map = new Mapboxgl.Map({
         container: mapElement.value,
-        style: 'mapbox://styles/mapbox/navigation-night-v1',
+        style: "mapbox://styles/mapbox/dark-v11",
         center: userLocation.value,
         zoom: 15,
       });
 
       const myLocationMarker = new Mapboxgl.Marker()
         .setLngLat(userLocation.value)
-        .addTo(map)
-    }
+        .addTo(map);
+
+      setMap(map);
+    };
 
     onMounted(() => {
-      if (isUserLocationReady) return initMap()
-    })
+      if (isUserLocationReady) return initMap();
+    });
 
-    watch(isUserLocationReady, (isReady) => {
-      if (isReady) initMap()
-    }, { immediate: true })
+    watch(
+      isUserLocationReady,
+      (isReady) => {
+        if (isReady) initMap();
+      },
+      { immediate: true }
+    );
 
     return {
       mapElement,
       isUserLocationReady,
-    }
-  }
-})
+    };
+  },
+});
 </script>
 
 <style scoped>

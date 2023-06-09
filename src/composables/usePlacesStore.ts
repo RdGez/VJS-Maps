@@ -12,8 +12,11 @@ export const usePlacesStore = () => {
   })
 
   return {
+    places: computed(() => store.state.places.places ),
     isLoading: computed(() => store.state.places.isLoading ),
     userLocation: computed(() => store.state.places.userLocation ),
+    isLoadingPlaces: computed(() => store.state.places.isLoadingPlaces ),
     isUserLocationReady: computed(() => store.getters["places/isUserLocationReady"] ),
+    searchPlaces: (query: string) => store.dispatch("places/searchPlaces", query),
   }
 }

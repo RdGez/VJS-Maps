@@ -9,7 +9,10 @@
     >
       <h4>{{ place.text }}</h4>
       <p>{{ place.place_name }}</p>
-      <button :class="place.id === activePlace ? 'btn' : 'btn-outline '">
+      <button
+        @click.self="getRouteDirections(place)"
+        :class="place.id === activePlace ? 'btn' : 'btn-outline '"
+      >
         <img src="@/assets/location.svg" alt="Location" />
       </button>
     </li>
@@ -20,32 +23,44 @@
 import { usePlacesStore } from "@/composables/usePlacesStore";
 import { ref, watch } from "vue";
 import { Feature } from "@/interfaces/places";
-import { useMapStore } from '@/composables/useMapStore';
+import { useMapStore } from "@/composables/useMapStore";
 
 export default {
   name: "SearchResults",
   setup() {
-    const { isLoadingPlaces, places } = usePlacesStore();
-    const { map, setPlaceMarkers } = useMapStore()
+    const { isLoadingPlaces, places, userLocation } = usePlacesStore();
+    const { map, setPlaceMarkers, getRouteBetweenPoints } = useMapStore();
     const activePlace = ref("");
-    
-    watch( places, (newPlaces) => {
-      activePlace.value = ''
-      setPlaceMarkers(newPlaces)
-    })
+
+    watch(places, (newPlaces) => {
+      activePlace.value = "";
+      setPlaceMarkers(newPlaces);
+    });
 
     return {
       isLoadingPlaces,
       places,
       activePlace,
       onPlaceClick: (place: Feature) => {
-        const [ lng, lat ] = place.center
+
+        const [lng, lat] = place.center;
 
         activePlace.value = place.id;
         map.value?.flyTo({
           center: [lng, lat],
           zoom: 12,
         });
+      },
+      getRouteDirections: (place: Feature) => {
+        if (!userLocation.value) return;
+
+        const [lng, lat] = place.center;
+        const [startLng, startLat] = userLocation.value;
+
+        const start = [startLng, startLat];
+        const end = [lng, lat];
+
+        getRouteBetweenPoints(start, end);
       },
     };
   },
